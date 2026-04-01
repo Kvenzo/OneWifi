@@ -1481,6 +1481,15 @@ int vap_svc_mesh_ext_update(vap_svc_t *svc, unsigned int radio_index, wifi_vap_i
                     sizeof(wifi_vap_info_t));
         tgt_vap_map->num_vaps = 1;
 
+        if (rdk_vap_info[i].exists == false) {
+            wifi_util_info_print(WIFI_CTRL,
+                "%s:%d skip createVAP for non-existing STA vap_index:%d radio_index:%d\n",
+                __func__, __LINE__, map->vap_array[i].vap_index, radio_index);
+            get_wifidb_obj()->desc.update_wifi_vap_info_fn(getVAPName(map->vap_array[i].vap_index),
+                &map->vap_array[i], &rdk_vap_info[i]);
+            continue;
+        }
+
         // avoid disabling mesh sta in extender mode
         if ((tgt_vap_map->vap_array[0].u.sta_info.enabled == false) && (tgt_vap_map->vap_array[0].u.sta_info.ignite_enabled == false) && (is_sta_enabled())) {
             wifi_util_info_print(WIFI_CTRL, "%s:%d vap_index:%d skip disabling sta\n", __func__,
